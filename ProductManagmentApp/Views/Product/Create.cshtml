@@ -1,0 +1,88 @@
+﻿@model ProductManagmentApp.Models.Product
+
+@{
+    ViewBag.Title = "Create Product";
+}
+
+<div class="container mt-4" id="createFormContainer">
+    <a href="/Product/Index" class="btn btn-info mb-4">Product List</a>
+    <h2 class="mb-4">Create Product</h2>
+
+    <form id="productForm" action="/Product/Create" method="post" class="form-horizontal" role="form">
+
+        <div class="form-group m-2">
+            <label for="Name" class="control-label">Product Name:</label>
+            <input type="text" name="Name" id="Name" class="form-control" placeholder="Enter product name" />
+            <span class="text-danger" id="NameError"></span>
+        </div>
+
+        <div class="form-group m-2">
+            <label for="Unit" class="control-label">Unit:</label>
+            <input type="text" name="Unit" id="Unit" class="form-control" placeholder="Enter unit (e.g., pieces, kg)" />
+            <span class="text-danger" id="UnitError"></span>
+        </div>
+
+        <div class="form-group m-2">
+            <label for="Price" class="control-label">Price:</label>
+            <input type="text" name="Price" id="Price" class="form-control" placeholder="Enter price" />
+            <span class="text-danger" id="PriceError"></span>
+        </div>
+
+        <div class="form-group m-2">
+            <label for="InitialQuantity" class="control-label">Initial Quantity:</label>
+            <input type="text" name="InitialQuantity" id="InitialQuantity" class="form-control" placeholder="Enter initial quantity" />
+            <span class="text-danger" id="InitialQuantityError"></span>
+        </div>
+
+        <div class="form-group mt-3">
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(function () {
+            $('#productForm').submit(function (e) {
+                e.preventDefault();
+
+                $('#NameError').text('');
+                $('#UnitError').text('');
+                $('#PriceError').text('');
+                $('#InitialQuantityError').text('');
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Product/Create',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            alert('Product saved successfully!');
+                            window.location.href = '/Product/Index';
+                        } else if (response.errors) {
+
+                            if (response.errors.Name) {
+                                $('#NameError').text(response.errors.Name[0]);
+                            }
+                            if (response.errors.Unit) {
+                                $('#UnitError').text(response.errors.Unit[0]);
+                            }
+                            if (response.errors.Price) {
+                                $('#PriceError').text(response.errors.Price[0]);
+                            }
+                            if (response.errors.InitialQuantity) {
+                                $('#InitialQuantityError').text(response.errors.InitialQuantity[0]);
+                            }
+                        }
+                    },
+                    error: function () {
+                        alert('Error saving product. Please try again!');
+                    }
+                });
+            });
+        });
+    </script>
+}

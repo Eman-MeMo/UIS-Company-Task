@@ -1,0 +1,95 @@
+﻿@{
+    ViewBag.Title = "Transaction List";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Transaction List</h2>
+
+    <form id="filterForm" class="mb-4">
+        <div class="form-row">
+            <div class="col">
+                <label for="startDate">Start Date</label>
+                <input type="date" id="startDate" name="startDate" class="form-control" />
+            </div>
+            <div class="col">
+                <label for="endDate">End Date</label>
+                <input type="date" id="endDate" name="endDate" class="form-control" />
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-primary mt-4">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Date</th>
+                <th>Total Price</th>
+            </tr>
+        </thead>
+        <tbody id="transactionTableBody">
+        </tbody>
+    </table>
+</div>
+
+@section scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            loadTransactions();
+
+            $('#filterForm').on('submit', function (e) {
+                e.preventDefault();
+                loadTransactions();
+            });
+        });
+
+        function loadTransactions() {
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+
+            $.ajax({
+                url: '/Transaction/GetAll',
+                type: 'GET',
+                data: {
+                    startDate: startDate,
+                    endDate: endDate
+                },
+                success: function (transactions) {
+                    $('#transactionTableBody').empty();
+
+                    if (transactions.length === 0) {
+                        $('#transactionTableBody').append('<tr><td colspan="4" class="text-center">No transactions found.</td></tr>');
+                    }
+
+                    $.each(transactions, function (i, transaction) {
+                        var row = `
+                            <tr>
+                                <td>${transaction.Product.Name}</td>
+                                <td>${transaction.Quantity}</td>
+                                <td>${transaction.Product.Unit}</td>
+                                <td>${formatDate(transaction.Date)}</td>
+                                <td>$${transaction.TotalPrice.toFixed(2)}</td>
+                            </tr>`;
+                        $('#transactionTableBody').append(row);
+                    });
+                },
+                error: function () {
+                    $('#transactionTableBody').html('<tr><td colspan="4" class="text-danger text-center">Error loading transactions.</td></tr>');
+                }
+            });
+        }
+        function formatDate(dotNetDateStr) {
+            const timestamp = parseInt(dotNetDateStr.replace(/\/Date\((\d+)\)\//, '$1'));
+            const date = new Date(timestamp);
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            return `${mm}-${dd}-${yyyy}`;
+        }
+    </script>
+}

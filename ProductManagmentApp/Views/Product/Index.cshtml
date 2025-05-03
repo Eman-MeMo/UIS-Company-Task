@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "Product List";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Product List</h2>
+        <a href="/Product/Create" class="btn btn-success">Create Product</a>
+    </div>
+
+    <div class="row" id="productListContainer">
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            loadProducts();
+        });
+
+        function loadProducts() {
+            $.ajax({
+                url: '/Product/GetAll',
+                type: 'GET',
+                success: function (products) {
+                    $('#productListContainer').empty();
+
+                    $.each(products, function (i, product) {
+                        const card = `
+                                    <div class="col-md-4 mb-4">
+                                        <div class="card h-100 shadow-sm border-0">
+                                            <div class="card-body">
+                                                <h5 class="card-title text-primary">${product.Name}</h5>
+                                                <p class="card-text"><strong>Unit:</strong> ${product.Unit}</p>
+                                                <p class="card-text"><strong>Price:</strong> $${product.Price.toFixed(2)}</p>
+                                                <p class="card-text"><strong>Quantity:</strong> ${product.InitialQuantity}</p>
+                                            </div>
+                                            <div class="card-footer bg-transparent border-0 text-end">
+                                                <a href="/Transaction/Create?productId=${product.Id}" class="btn btn-primary">Transact</a>
+                                            </div>
+                                        </div>
+                                    </div>`;
+                        $('#productListContainer').append(card);
+                    });
+                },
+                error: function () {
+                    $('#productListContainer').html('<p class="text-danger">Failed to load products.</p>');
+                }
+            });
+        }
+    </script>
+}

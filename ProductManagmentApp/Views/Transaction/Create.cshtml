@@ -1,0 +1,71 @@
+﻿@model ProductManagmentApp.Models.Transaction
+
+@{
+    ViewBag.Title = "Create Transaction";
+}
+
+<div class="container mt-4" id="createFormContainer">
+    <a href="/Transaction/Index" class="btn btn-info mb-4">Transaction List</a>
+    <h2 class="mb-4">Create Transaction</h2>
+
+    <form id="transactionForm" method="post" class="form-horizontal" role="form">
+        <input type="hidden" id="ProductId" name="productId" value="@Model.ProductId" />
+
+        <div class="form-group m-2">
+            <label for="Quantity" class="control-label">Quantity</label>
+            <input type="text" name="quantity" id="Quantity" class="form-control" placeholder="Enter product Quantity" />
+            <span class="text-danger" id="QuantityError"></span>
+        </div>
+
+        <div class="form-group m-2">
+            <label for="Date" class="control-label">Date:</label>
+            <input type="date" name="date" id="Date" class="form-control" placeholder="Enter Date" />
+            <span class="text-danger" id="DateError"></span>
+        </div>
+
+        <div class="form-group mt-3 m-2">
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(function () {
+            $('#transactionForm').submit(function (e) {
+                e.preventDefault();
+
+                $('#DateError').text('');
+                $('#QuantityError').text('');
+
+                var productId = $('#ProductId').val();
+                var quantity = $('#Quantity').val();
+                var date = $('#Date').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Transaction/Create',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            alert('Transaction saved successfully!');
+                            window.location.href = '/Transaction/Index';
+                        } else if (response.errors) {
+                            if (response.errors.Quantity) {
+                                $('#QuantityError').text(response.errors.Quantity[0]);
+                            }
+                            if (response.errors.Date) {
+                                $('#DateError').text(response.errors.Date[0]);
+                            }
+                        }
+                    },
+                    error: function () {
+                        alert('Error saving Transaction. Please try again!');
+                    }
+                });
+            });
+        });
+    </script>
+}
