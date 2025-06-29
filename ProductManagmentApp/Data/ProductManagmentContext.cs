@@ -1,20 +1,18 @@
-﻿using ProductManagmentApp.Models;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Web;
+﻿using Microsoft.EntityFrameworkCore;
+using ProductManagmentApp.Models;
 
 namespace ProductManagmentApp.Data
 {
-    public class ProductManagmentContext: DbContext
+    public class ProductManagementContext : DbContext
     {
-        public ProductManagmentContext() : base("ProductManagmentConnection")
+
+        public ProductManagementContext(DbContextOptions<ProductManagementContext> options)
+            : base(options)
         {
-            Configuration.LazyLoadingEnabled = false;
-            Configuration.ProxyCreationEnabled = false;
+                 
         }
+
         public DbSet<Product> Products { get; set; }
-        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Transaction> Transactions { get; set; } 
     }
 }

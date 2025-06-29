@@ -1,4 +1,5 @@
-﻿using ProductManagmentApp.Data;
+﻿using Microsoft.Extensions.DependencyInjection;
+using ProductManagmentApp.Data;
 using ProductManagmentApp.Models;
 using System;
 using System.Collections.Generic;
@@ -10,17 +11,20 @@ namespace ProductManagmentApp.Controllers
 {
     public class ProductController : Controller
     {
+        private readonly ProductManagementContext context;
+
+        public ProductController(ProductManagementContext _context)
+        {
+            context = _context;
+        }
         public ActionResult Index()
         {
             return View();
         }
         public ActionResult GetAll()
         {
-            using (var context = new ProductManagmentContext())
-            {
-                var products = context.Products.ToList();
-                return Json(products, JsonRequestBehavior.AllowGet);
-            }
+            var products = context.Products.ToList();
+            return Json(products, JsonRequestBehavior.AllowGet);
         }
         public ActionResult Create()
         {
@@ -32,12 +36,10 @@ namespace ProductManagmentApp.Controllers
         {
             if(ModelState.IsValid)
             {
-                using (var context = new ProductManagmentContext())
-                {
-                    product.GeneratedCode = Guid.NewGuid().ToString();
-                    context.Products.Add(product);
-                    context.SaveChanges();
-                }
+                product.GeneratedCode = Guid.NewGuid().ToString();
+                context.Products.Add(product);
+                context.SaveChanges();
+                
                 return Json(new { success = true, message = "Product created successfully!" });
             }
 
